@@ -85,15 +85,33 @@ impl eframe::App for ToDoList {
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Min), |ui| {
                     let i:i32 = i32::try_from(i).unwrap();
                     if self.selected == i {
+                        //edit mode
                         if ui.button("x").clicked() {remove_idx = i};
                         if ui.button("<").clicked() {should_save = true;}
                         ui.text_edit_singleline(&mut task.title);
                     } else {
+                        //normal display
                         if ui.checkbox(&mut task.finished,"").changed() {should_save = true;}
                         if ui.button("edit").clicked() {
                             self.selected = i
                         }
-                        ui.label(&task.title);
+
+                        if task.finished {
+                            //crossed out text
+                            let mut job = egui::epaint::text::LayoutJob::default();
+                            job.append(&format!(" {} ", &task.title), 0.0,
+                                egui::epaint::text::TextFormat {
+                                    color: egui::ecolor::Color32::DARK_GRAY,
+                                    strikethrough:egui::Stroke {color: egui::ecolor::Color32::GRAY, width: 2.0},
+                                    ..Default::default()
+                                }
+                            );
+                            ui.label(job);
+                        } else {
+                            //normal text
+                            ui.label(&task.title);
+                        }
+                        
                     }
                 });
                 ui.separator();
